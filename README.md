@@ -12,4 +12,4 @@ tinuous state space environments using neural networks as function ap-
 proximators.
 
 # References
-1. Dimitri P Bertsekas. Dierential training of rollout policies. 1997.
+1. Dimitri P Bertsekas. Differential training of rollout policies. 1997.
