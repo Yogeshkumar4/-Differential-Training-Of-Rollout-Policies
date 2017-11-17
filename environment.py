@@ -1,3 +1,4 @@
+from __future__ import print_function
 import random
 
 class Environment:
@@ -64,7 +65,7 @@ class Environment:
     def getState(self):
         return self.obfuscate(self.state)
 
-    def takeAction(self, action):
+    def step(self, action):
         '''Takes the given action in the current environment
         Returns: (new state, reward, event)'''
 
@@ -134,6 +135,11 @@ class Environment:
 
         # If we reach the goal, end the episode
         if state_ == self.goal:
-            return state_, 100
+            return self.obfuscate(state_), 100
         else:
-            return state_, -1
+            return self.obfuscate(state_), -1
+
+    def reset(self):
+        self.state = self.start
+        self.episodeLen = 0
+        return self.start
