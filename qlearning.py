@@ -2,6 +2,7 @@ import gym
 import numpy as np
 import argparse
 from environment import Environment
+from utils import str2bool, ACTIONS
 
 num_episodes = 30000
 ACTIONS = ['up', 'down', 'left', 'right']
@@ -34,16 +35,6 @@ class QLearningAgent:
     def __initparams__(self):
         self.curr_state = env.reset()
 
-
-def str2bool(v):
-    # https://stackoverflow.com/a/43357954/2570622
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
 if __name__ == '__main__':
 
         parser = argparse.ArgumentParser(description="Implements the Environment.")
@@ -52,7 +43,7 @@ if __name__ == '__main__':
         parser.add_argument('-slip', '--slip', dest='slip', type=float, default=0.4, help='How likely is it for the agent to slip')
         parser.add_argument('-ml', '--maxlength', dest='maxLength', type=int, default=1000, help='Maximum number of timesteps in an episode')
         parser.add_argument('-rs', '--randomseed', dest='randomseed', type=int, default=0, help='Seed for RNG.')
-        parser.add_argument('-nobf', '--noobfuscate', dest='obfuscate', type=str2bool, nargs='?', const=False, default=True, help='Whether to obfuscate the states or not')
+        parser.add_argument('-nobf', '--noobfuscate', dest='obfuscate', type=str2bool, nargs='?', const=False, default=False, help='Whether to obfuscate the states or not')
         parser.add_argument('-ne', '--numepisodes', dest='numEpisodes', type=int, default=1600, help='Number of episodes to run')
         args = parser.parse_args()
         env = Environment(args.side, args.instance, args.slip, args.obfuscate, args.randomseed, args.maxLength)
