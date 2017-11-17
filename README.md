@@ -1,7 +1,6 @@
 # Differential-Training-Of-Rollout-Policies
 A common reinforcement learning approach to find optimal policies
-is through the estimation of value functions. Bertsekas[1] wrote an in-
-teresting paper arguing why it might be better to learn functions that
+is through the estimation of value functions. Bertsekas[1] wrote an interesting paper arguing why it might be better to learn functions that
 measure the difference in value between states, rather than the value of
 states. In this exploratory project, we propose to validate this hypothesis
 by implementing the differential training method proposed by Bertsekas
