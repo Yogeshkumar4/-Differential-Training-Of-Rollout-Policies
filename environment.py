@@ -11,9 +11,9 @@ class Environment:
         self.episodeLen = 0
         random.seed(instance)
 
-        self.start = random.randint(0, self.numStates - 2)  # Anything but the goal
         corners = [0, side-1, side*(side-1), side*side-1]
         self.goal = random.choice(corners)
+        self.reset() # Anything but the goal
 
         # Make some obstacles
         numObstacles = self.numStates // 10
@@ -140,6 +140,10 @@ class Environment:
             return self.obfuscate(state_), -1
 
     def reset(self):
+        start = random.randint(0, self.numStates - 1)
+        while start == self.goal:
+            start = random.randint(0, self.numStates - 1)
+        self.start = start
         self.state = self.start
         self.episodeLen = 0
         return self.start

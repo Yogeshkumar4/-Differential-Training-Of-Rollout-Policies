@@ -48,7 +48,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
         env = Environment(args.side, args.instance, args.slip, args.obfuscate, args.randomseed, args.maxLength)
         gamma = 0.95
-        num_episodes = 100
+        num_episodes = 1000
         agent = QLearningAgent(env, gamma, lr=0.8)
         episode_rewards = np.zeros(num_episodes)
         for i in range(num_episodes):
