@@ -24,6 +24,7 @@ class Environment:
                 obs = random.randint(0, self.numStates - 1)
             self.obstacles.append(obs)
 
+
         random.seed(seed)
         # Make a mapping for randomizing state names
         oldnames = list(range(self.numStates))
@@ -48,6 +49,17 @@ class Environment:
                 if state in self.obstacles: stateType = 'O' # Obstacle
                 print('  {:03} {:03} {}  |'.format(state, obs, stateType), end='')
             print()
+
+    def printPolicy(self, Pi):
+        for y in range(self.side):
+            print('  |', end='')
+            chars = [u'\u2191',u'\u2193',u'\u2190', u'\u2192']
+            for x in range(self.side):
+                state = y* self.side + x
+                print('{} |'.format(chars[Pi[state]].encode("utf-8")), end='')
+            print()
+        print("-"*(self.side)**2)
+
 
     def obfuscate(self, state):
         if self.randomizeNames:

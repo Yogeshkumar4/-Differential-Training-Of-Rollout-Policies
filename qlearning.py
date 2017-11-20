@@ -36,11 +36,10 @@ class QLearningAgent:
         self.curr_state = env.reset()
 
 if __name__ == '__main__':
-
         parser = argparse.ArgumentParser(description="Implements the Environment.")
         parser.add_argument('-side', '--side', dest='side', type=int, default=8, help='Side length of the square grid')
         parser.add_argument('-i', '--instance', dest='instance', type=int, default=0, help='Instance number of the gridworld.')
-        parser.add_argument('-slip', '--slip', dest='slip', type=float, default=0.4, help='How likely is it for the agent to slip')
+        parser.add_argument('-slip', '--slip', dest='slip', type=float, default=0.8, help='How likely is it for the agent to slip')
         parser.add_argument('-ml', '--maxlength', dest='maxLength', type=int, default=1000, help='Maximum number of timesteps in an episode')
         parser.add_argument('-rs', '--randomseed', dest='randomseed', type=int, default=0, help='Seed for RNG.')
         parser.add_argument('-nobf', '--noobfuscate', dest='obfuscate', type=str2bool, nargs='?', const=False, default=False, help='Whether to obfuscate the states or not')
@@ -48,7 +47,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
         env = Environment(args.side, args.instance, args.slip, args.obfuscate, args.randomseed, args.maxLength)
         gamma = 0.95
-        num_episodes = 1000
+        num_episodes = 10000
         agent = QLearningAgent(env, gamma, lr=0.8)
         episode_rewards = np.zeros(num_episodes)
         for i in range(num_episodes):
@@ -56,12 +55,9 @@ if __name__ == '__main__':
             episode_reward = 0
             while event == 'continue':
                 action = agent.getAction() # Take action
-                if i == 99:
-                    env.printWorld()
-                    print("--------------------")
                 state, reward, event = env.step(action)
                 agent.observe(state, reward, event)
                 episode_reward += reward
             episode_rewards[i] = episode_reward
         print(episode_rewards[-1000:])
-        print("Mean episode reward: {}".format(np.mean(episode_rewards[-100:])))
+        print("Mean episode reward: {}".format(np.mean(episode_rewards[-1000:])))
