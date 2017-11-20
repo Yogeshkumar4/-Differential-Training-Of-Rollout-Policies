@@ -7,8 +7,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 
-from common.gym_runner import GymRunner
-from common.q_learning_agent import QLearningAgent
+from common.gym_runner_pair import GymRunner
+from common.Q_learning_pair import QLearningAgent
 
 
 class CartPoleAgent(QLearningAgent):
