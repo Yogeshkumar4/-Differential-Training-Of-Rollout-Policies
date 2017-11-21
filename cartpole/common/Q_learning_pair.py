@@ -1,8 +1,8 @@
 import abc
 from collections import deque
 import numpy as np
-import keras.backend as K
-from keras.layers import Subtract
+from keras.layers import Subtract, Input
+from keras.models import Model
 import random
 
 class QLearningAgent(object):
@@ -19,25 +19,17 @@ class QLearningAgent(object):
 
         # agent state
         self.model = self.build_model()
-        self.pair_model = self.pair_model()
+        self.pair_model = self.create_pair_model()
+        # print(self.pair_model.summary())
         self.memory = deque(maxlen=2000)
 
     @abc.abstractmethod
     def build_model(self):
         return None
 
-    def pair_model(self):
-        input_1 = Input(Shape=(4,))
-        input_2 = Input(Shape=(4,))
-        out_1 = self.model.predict(input_1)
-        out_2 = self.model.predict(input_2)
-        out_pair_1 = K.tile(out_1, [1, 2])
-        out_pair_2 = K.transpose(K.tile(out_2, [1, 2]))
-        diff = Subtract()(out_pair_1, out_pair_2)
-        output = K.flatten(diff)
-        model = Model(inputs = [input_1, input_2], outputs = diff)
-        model.compile(Adam(lr=0.001), 'mse')
-        return model
+    @abc.abstractmethod
+    def create_pair_model(self):
+        return None
 
 
     def select_action(self, state, do_train=True):
@@ -57,12 +49,12 @@ class QLearningAgent(object):
         for state, action, reward, next_state, done in minibatch:
             target = reward
             if not done:
-                v1 = np.amax(self.model.predict(next_state[0]))[0]
-                v2 = np.amax(self.model.predict(next_state[1]))[0]
+                v1 = np.amax(self.model.predict(next_state[0])[0])
+                v2 = np.amax(self.model.predict(next_state[1])[0])
                 target = (reward + self.gamma * (v1 - v2))
 
             target_f = self.pair_model.predict(state)
-            action_index = action[0] * 2 + action[1]
+            action_index = action[0] * self.action_size + action[1]
             target_f[0][action_index] = target
             self.pair_model.fit(state, target_f, epochs=1, verbose=0)
 

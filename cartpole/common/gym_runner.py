@@ -9,7 +9,7 @@ class GymRunner:
         self.max_timesteps = max_timesteps
 
         self.env = gym.make(env_id)
-        self.env = wrappers.Monitor(self.env, monitor_dir, force=True)
+        # self.env = wrappers.Monitor(self.env, monitor_dir, force=True)
 
     def calc_reward(self, state, action, gym_reward, next_state, done):
         return gym_reward

@@ -31,9 +31,9 @@ if __name__ == "__main__":
     gym = GymRunner('CartPole-v0', 'gymresults/cartpole-v0')
     agent = CartPoleAgent()
 
-    gym.train(agent, 1000)
+    gym.train(agent, 500)
     gym.run(agent, 500)
 
-    agent.model.save_weights("models/cartpole-v0.h5", overwrite=True)
+    # agent.model.save_weights("models/cartpole-v0.h5", overwrite=True)
     gym.env.close()
     # gym.close_and_upload(os.environ['API_KEY'])
