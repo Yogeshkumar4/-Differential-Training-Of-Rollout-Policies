@@ -11,6 +11,7 @@ from keras.engine.topology import Layer
 from keras import layers
 
 import numpy as np
+import argparse
 
 from common.gym_runner_pair import GymRunner
 from common.Q_learning_pair import QLearningAgent
@@ -31,7 +32,7 @@ class Repeat_Layer(layers.Layer):
     def compute_output_shape(self, input_shape):
         shape = list(input_shape)
         assert len(shape) == 2  # only valid for 2D tensors
-        shape[-1] **= 2
+        shape[-1] *= self.output_dim
         return tuple(shape)
 
 class Tile_Layer(layers.Layer):
@@ -50,8 +51,8 @@ class Tile_Layer(layers.Layer):
     def compute_output_shape(self, input_shape):
         shape = list(input_shape)
         assert len(shape) == 2  # only valid for 2D tensors
-        shape[-1] **= 2
-        return tuple(shape)      
+        shape[-1] *= self.output_dim
+        return tuple(shape)
 
 
 class CartPoleAgent(QLearningAgent):
@@ -78,11 +79,7 @@ class CartPoleAgent(QLearningAgent):
        out_2 = self.model(input_2)
        out_pair_1 = Repeat_Layer(self.action_space)(out_1)
        out_pair_2 = Tile_Layer(self.action_space)(out_2)
-       # out_pair_1 = K.repeat_elements(out_1, 2, axis=1)
-       # out_pair_2 = K.tile(out_2, [1, 2])
        diff = Subtract()([out_pair_1, out_pair_2])
-       # diff = out_pair_1 - out_pair_2
-       # output = K.flatten(diff)
        output = Lambda(lambda x: x)(diff)
        p_model = Model(inputs = [input_1, input_2], outputs = output)
        p_model.compile(Adam(lr=0.001), 'mse')
@@ -90,13 +87,26 @@ class CartPoleAgent(QLearningAgent):
 
 
 if __name__ == "__main__":
-    gym = GymRunner('MountainCar-v0', 'gymresults/cartpole-v0')
+    parser = argparse.ArgumentParser(description="Implements the Environment.")
+    parser.add_argument('-env', '--env_name', dest='env_name', type=str,
+        default="CartPole-v0", help='Name of the environment')
+    parser.add_argument('-train', '--train_steps', dest='train_steps', type=int,
+            default = 1000, help="Number of training steps")
+    parser.add_argument('-test', '--test_steps', dest='test_steps', type=int,
+            default= 500, help="Number of test steps")
+    parser.add_argument('--render', dest='render', action='store_true', help="Whether to render the environment")
+    parser.add_argument('--save', dest='save', action='store_true', help="Save the model weights")
+    parser.set_defaults(render=False, save = True)
+    args = parser.parse_args()
+
+    dir_results = os.path.join('gymresults', args.env_name)
+    gym = GymRunner(args.env_name, render= args.render)
     agent = CartPoleAgent(gym.state_space(), gym.action_space())
     print(agent.pair_model.summary())
-    gym.train(agent, 500)
-    # print(agent.pair_model.get_weights())
-    gym.run(agent, 500)
-
-    agent.model.save_weights("models/cartpole-v0.h5", overwrite=True)
+    gym.train(agent, args.train_steps)
+    weights_path = os.path.join('models', args.env_name + '_train_steps_{}'.format(args.train_steps) + '.h5')
+    if args.save:
+      agent.model.save_weights(weights_path, overwrite=True)
+    gym.run(agent, args.test_steps)
     gym.env.close()
     # gym.close_and_upload(os.environ['API_KEY'])

@@ -5,15 +5,15 @@ from pair_mdp import pairEnv
 
 
 class GymRunner:
-    def __init__(self, env_id, monitor_dir, max_timesteps=100000):
-        self.monitor_dir = monitor_dir
+    def __init__(self, env_id, render = True, max_timesteps=100000):
         self.max_timesteps = max_timesteps
-
-        self.env = pairEnv(gym.make(env_id))
-        # self.env1 = wrappers.Monitor(self.env.env1, monitor_dir, force=True)
-        # self.visual = gym.make(env_id)
+        self.env = pairEnv(env_id=env_id, render=render)
         self.env_obv_shape = self.env.observation_space.shape[0]
         self.env_action_shape = self.env.action_space.n
+
+        # self.monitor_dir = monitor_dir
+        # self.env1 = wrappers.Monitor(self.env.env1, monitor_dir, force=True)
+        # self.visual = gym.make(env_id)
 
     def calc_reward(self, state, action, gym_reward, next_state, done):
         return gym_reward
@@ -22,7 +22,7 @@ class GymRunner:
         return self.env_obv_shape
 
     def action_space(self):
-        return self.env_action_shape        
+        return self.env_action_shape
 
     def train(self, agent, num_episodes):
         self.run(agent, num_episodes, do_train=True)
