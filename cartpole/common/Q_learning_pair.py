@@ -6,22 +6,23 @@ from keras.models import Model
 import random
 
 class QLearningAgent(object):
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, buffer_size):
         self.state_size = state_size
         self.action_size = action_size
 
         # hyperparameters
-        self.gamma = 0.95  # discount rate on future rewards
+        self.gamma = 0.99  # discount rate on future rewards
         self.epsilon = 1.0  # exploration rate
         self.epsilon_decay = 0.995  # the decay of epsilon after each training batch
         self.epsilon_min = 0.1  # the minimum exploration rate permissible
         self.batch_size = 32  # maximum size of the batches sampled from memory
+        self.tile_coder = TileCoder()
 
         # agent state
-        self.model = self.build_model()
+        self.model = self.createRegularizedModel([10,10])
         self.pair_model = self.create_pair_model()
         # print(self.pair_model.summary())
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=buffer_size)
 
     @abc.abstractmethod
     def build_model(self):

@@ -20,7 +20,7 @@ class pairEnv:
             self.env1.render()
         o1, r1, d1, _ = self.env1.step(action[0])
         o2, r2, d2, _ = self.env2.step(action[1])
-        self.alive_time += 1
+        self.alive_time = 1
         self.reward += r1
         pair_reward = self.modifiedReward(r1, d1) - self.modifiedReward(r2, d2)
         return ([o1, o2], pair_reward, d1 or d2)

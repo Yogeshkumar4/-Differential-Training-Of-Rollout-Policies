@@ -4,14 +4,15 @@ from gym import wrappers
 from pair_mdp import pairEnv
 
 
+
 class GymRunner:
-    def __init__(self, env_id, render = True, max_timesteps=100000):
+    def __init__(self, env_id, render = True, tile_coding = False, max_timesteps=100000):
         self.max_timesteps = max_timesteps
         self.env = pairEnv(env_id=env_id, render=render)
         self.env_obv_shape = self.env.observation_space.shape[0]
         self.env_action_shape = self.env.action_space.n
-
-
+        self.tile_coding = tile_coding
+        self.tile = Tilecoder(7,14)
 
     def calc_reward(self, state, action, gym_reward, next_state, done):
         return gym_reward
@@ -28,6 +29,9 @@ class GymRunner:
     def convert_state(self, state):
         state[0] = state[0].reshape(1, self.env_obv_shape)
         state[1] = state[1].reshape(1, self.env_obv_shape)
+        if self.tiling:
+            state[0] = self.tile.getFeatures(state[0])
+            state[1] = self.tile.getFeatures(state[1])
         return state
 
     def run(self, agent, num_episodes, do_train=False):
