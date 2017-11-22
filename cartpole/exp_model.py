@@ -149,4 +149,3 @@ if __name__ == "__main__":
       agent.model.save_weights(weights_path, overwrite=True)
     gym.run(agent, args.test_steps)
     gym.env.close()
-    # gym.close_and_upload(os.environ['API_KEY'])

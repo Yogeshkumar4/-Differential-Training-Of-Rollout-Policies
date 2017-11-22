@@ -10,14 +10,17 @@ class Environment:
         self.maxLength = maxLength
         self.episodeLen = 0
         random.seed(instance)
+        self.obstacles = []
 
         corners = [0, side-1, side*(side-1), side*side-1]
         self.goal = random.choice(corners)
-        self.reset() # Anything but the goal
+        self.start = random.randint(0, self.numStates - 1)
+        while self.start == self.goal:
+            self.start = random.randint(0, self.numStates - 1)
+        self.reset_start() # Anything but the goal
 
         # Make some obstacles
         numObstacles = self.numStates // 10
-        self.obstacles = []
         for i in range(numObstacles):
             obs = random.randint(0, self.numStates - 1)
             while obs == self.start or obs == self.goal:
@@ -36,6 +39,8 @@ class Environment:
         # Start the environemt
         self.state = self.start
 
+        # self.printWorld()
+
     def printWorld(self):
         for y in range(self.side):
             print('  |', end='')
@@ -47,7 +52,9 @@ class Environment:
                 if state == self.start: stateType = 'S' # Start state
                 if state == self.goal: stateType = 'G' # Goal
                 if state in self.obstacles: stateType = 'O' # Obstacle
-                print('  {:03} {:03} {}  |'.format(state, obs, stateType), end='')
+                # print('  {:03} {:03} {}  |'.format(state, obs, stateType), end='')
+                print('{}|'.format(stateType), end='')
+                
             print()
 
     def printPolicy(self, Pi):
@@ -153,9 +160,14 @@ class Environment:
 
     def reset(self):
         start = random.randint(0, self.numStates - 1)
-        while start == self.goal:
+        while (start == self.goal) or start in self.obstacles:
             start = random.randint(0, self.numStates - 1)
         self.start = start
+        self.state = self.start
+        self.episodeLen = 0
+        return self.start
+
+    def reset_start(self):
         self.state = self.start
         self.episodeLen = 0
         return self.start

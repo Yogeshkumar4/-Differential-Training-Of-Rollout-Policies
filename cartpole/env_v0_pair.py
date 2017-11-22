@@ -69,7 +69,7 @@ class CartPoleAgent(QLearningAgent):
         model.compile(Adam(lr=0.001), 'mse')
 
         # load the weights of the model if reusing previous training session
-        model.load_weights("models/cartpole-v0.h5")
+        # model.load_weights("models/cartpole-v0.h5")
         return model
 
     def create_pair_model(self):
