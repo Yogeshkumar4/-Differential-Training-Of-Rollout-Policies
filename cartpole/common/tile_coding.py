@@ -33,7 +33,6 @@ class Tilecoder:
             tileIndices[i] = (i * (self.tilesPerTiling**self.dim) + sum(matrix[i,:])) 
 	
  	oneHot = np.zeros(self.numTiles)
-	print(tileIndices)
 	for index in tileIndices:
 	    oneHot[index] = 1
 	return oneHot

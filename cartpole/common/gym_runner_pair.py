@@ -2,8 +2,7 @@ import pyglet
 import gym
 from gym import wrappers
 from pair_mdp import pairEnv
-
-
+from tile_coding import Tilecoder
 
 class GymRunner:
     def __init__(self, env_id, render = True, tile_coding = False, max_timesteps=100000):
@@ -12,13 +11,17 @@ class GymRunner:
         self.env_obv_shape = self.env.observation_space.shape[0]
         self.env_action_shape = self.env.action_space.n
         self.tile_coding = tile_coding
-        self.tile = Tilecoder(7,14)
+	if self.tile_coding:
+            self.tile_coder = Tilecoder(self.env, 7, 14)
 
     def calc_reward(self, state, action, gym_reward, next_state, done):
         return gym_reward
 
     def state_space(self):
-        return self.env_obv_shape
+	if not self.tile_coding:
+	    return self.env_obv_shape
+	else:	
+	    return self.tile_coder.numTiles
 
     def action_space(self):
         return self.env_action_shape
@@ -27,12 +30,12 @@ class GymRunner:
         self.run(agent, num_episodes, do_train=True)
 
     def convert_state(self, state):
-        state[0] = state[0].reshape(1, self.env_obv_shape)
-        state[1] = state[1].reshape(1, self.env_obv_shape)
-        if self.tiling:
-            state[0] = self.tile.getFeatures(state[0])
-            state[1] = self.tile.getFeatures(state[1])
-        return state
+        if self.tile_coding:
+            state[0] = self.tile_coder.getFeatures(state[0])
+            state[1] = self.tile_coder.getFeatures(state[1])
+	state[0] = state[0].reshape(1, self.state_space())
+        state[1] = state[1].reshape(1, self.state_space())
+	return state
 
     def run(self, agent, num_episodes, do_train=False):
         for episode in range(num_episodes):
@@ -45,7 +48,7 @@ class GymRunner:
                 action = (action1, action2)
 
                 # execute the selected action
-                next_state, reward, done = self.env.step(action)
+                next_state, reward, done = self.env.step(action, render = (episode%50) == 0)
                 next_state = self.convert_state(next_state)
                 # reward = self.calc_reward(state, action, reward, next_state, done)
 

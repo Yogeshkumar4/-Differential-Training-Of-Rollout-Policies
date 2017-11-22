@@ -4,7 +4,7 @@ from gym import wrappers
 
 class pairEnv:
 
-    def __init__(self, env_id, render = True):
+    def __init__(self, env_id, render):
         env = gym.make(env_id)
         self.env1 = copy.deepcopy(env)
         self.env2 = copy.deepcopy(env)
@@ -14,16 +14,17 @@ class pairEnv:
         self.reward = 0
         self.render = render
         self.alive_time = 0
+        self.alive_time = 1
 
-    def step(self, action):
-        if self.render:
+
+    def step(self, action, render = False):
+        if render and self.render:
             self.env1.render()
         o1, r1, d1, _ = self.env1.step(action[0])
         o2, r2, d2, _ = self.env2.step(action[1])
-        self.alive_time = 1
         self.reward += r1
         pair_reward = self.modifiedReward(r1, d1) - self.modifiedReward(r2, d2)
-        return ([o1, o2], pair_reward, d1 or d2)
+        return ([o1, o2], pair_reward - 1, d1 or d2)
 
     def modifiedReward(self, r, d, end_reward = 50.0):
         if self.env_id == "CartPole-v0":

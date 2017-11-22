@@ -12,14 +12,13 @@ class QLearningAgent(object):
 
         # hyperparameters
         self.gamma = 0.99  # discount rate on future rewards
-        self.epsilon = 1.0  # exploration rate
-        self.epsilon_decay = 0.995  # the decay of epsilon after each training batch
+        self.epsilon = 1 #.1.0  # exploration rate
+        self.epsilon_decay = 0.95  # the decay of epsilon after each training batch
         self.epsilon_min = 0.1  # the minimum exploration rate permissible
         self.batch_size = 32  # maximum size of the batches sampled from memory
-        self.tile_coder = TileCoder()
 
         # agent state
-        self.model = self.createRegularizedModel([10,10])
+        self.model = self.createRegularizedModel([])
         self.pair_model = self.create_pair_model()
         # print(self.pair_model.summary())
         self.memory = deque(maxlen=buffer_size)
