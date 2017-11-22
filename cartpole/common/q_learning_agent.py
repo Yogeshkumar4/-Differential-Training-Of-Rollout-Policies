@@ -4,12 +4,12 @@ import numpy as np
 import random
 
 class QLearningAgent(object):
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, maxlen = 2000, gamma = 0.99):
         self.state_size = state_size
         self.action_size = action_size
 
         # hyperparameters
-        self.gamma = 0.95  # discount rate on future rewards
+        self.gamma = gamma  # discount rate on future rewards
         self.epsilon = 1.0  # exploration rate
         self.epsilon_decay = 0.995  # the decay of epsilon after each training batch
         self.epsilon_min = 0.1  # the minimum exploration rate permissible
@@ -17,7 +17,7 @@ class QLearningAgent(object):
 
         # agent state
         self.model = self.build_model()
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=maxlen)
 
     @abc.abstractmethod
     def build_model(self):
