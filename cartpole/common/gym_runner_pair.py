@@ -11,9 +11,7 @@ class GymRunner:
         self.env_obv_shape = self.env.observation_space.shape[0]
         self.env_action_shape = self.env.action_space.n
 
-        # self.monitor_dir = monitor_dir
-        # self.env1 = wrappers.Monitor(self.env.env1, monitor_dir, force=True)
-        # self.visual = gym.make(env_id)
+
 
     def calc_reward(self, state, action, gym_reward, next_state, done):
         return gym_reward

@@ -63,13 +63,13 @@ class CartPoleAgent(QLearningAgent):
 
     def build_model(self):
         model = Sequential()
-        model.add(Dense(12, activation='relu', input_dim=self.state_space))
-        model.add(Dense(12, activation='relu'))
+        model.add(Dense(12, activation='selu', input_dim=self.state_space))
+        model.add(Dense(12, activation='selu'))
         model.add(Dense(self.action_space))
         model.compile(Adam(lr=0.001), 'mse')
 
         # load the weights of the model if reusing previous training session
-        # model.load_weights("models/cartpole-v0.h5")
+        model.load_weights("models/cartpole-v0.h5")
         return model
 
     def create_pair_model(self):

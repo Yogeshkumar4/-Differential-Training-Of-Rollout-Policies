@@ -13,26 +13,29 @@ class pairEnv:
         self.action_space = self.env1.action_space
         self.reward = 0
         self.render = render
+        self.alive_time = 0
 
     def step(self, action):
         if self.render:
             self.env1.render()
         o1, r1, d1, _ = self.env1.step(action[0])
         o2, r2, d2, _ = self.env2.step(action[1])
+        self.alive_time += 1
         self.reward += r1
         pair_reward = self.modifiedReward(r1, d1) - self.modifiedReward(r2, d2)
         return ([o1, o2], pair_reward, d1 or d2)
 
     def modifiedReward(self, r, d, end_reward = 50.0):
         if self.env_id == "CartPole-v0":
-            return r + end_reward * (d == True)
+            return r  - self.alive_time * (d == True)
         elif self.env_id == "MountainCar-v0":
-            return r + end_reward * (d == True)
+            return r + self.alive_time * (d == True)
         else:
             return r
 
     def reset(self):
         self.reward = 0
+        self.alive_time = 0
         return [self.env1.reset(), self.env2.reset()]
 
     def close(self):
