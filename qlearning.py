@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 from environment import Environment
 from utils import str2bool, ACTIONS
+import random
 
 num_episodes = 30000
 ACTIONS = ['up', 'down', 'left', 'right']
@@ -10,17 +11,22 @@ ACTIONS = ['up', 'down', 'left', 'right']
 class QLearningAgent:
 
     def __init__(self, env, gamma, lr, epsilon=0.5):
+        self.env0 = env
         self.env = env
         self.gamma = gamma
         self.numActions = len(ACTIONS)
         self.Q = np.zeros((env.getnumStates(), self.numActions))
         self.__initparams__()
         self.alpha = lr
+        self.epsilon = epsilon
         self.episode = 0
 
     def getAction(self):
-        noise = np.random.randn(1, self.numActions)/(self.episode + 1)
-        self.action = np.argmax(self.Q[self.curr_state] + noise)
+        # noise = np.random.randn(1, self.numActions)/(self.episode + 1)
+        if random.random()<self.epsilon:
+            self.action = random.randint(0,self.numActions-1)
+        else:
+            self.action = np.argmax(self.Q[self.curr_state])
         return ACTIONS[self.action]
 
     def observe(self, newState, reward, event):
@@ -32,8 +38,11 @@ class QLearningAgent:
             self.__initparams__()
             self.episode += 1
 
+    def getPi(self):
+        return np.argmax(self.Q,axis=1)
+
     def __initparams__(self):
-        self.curr_state = env.reset()
+        self.curr_state = self.env0.reset_start()
 
 if __name__ == '__main__':
         parser = argparse.ArgumentParser(description="Implements the Environment.")
@@ -47,7 +56,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
         env = Environment(args.side, args.instance, args.slip, args.obfuscate, args.randomseed, args.maxLength)
         gamma = 0.95
-        num_episodes = 10000
+        num_episodes = 100
         agent = QLearningAgent(env, gamma, lr=0.8)
         episode_rewards = np.zeros(num_episodes)
         for i in range(num_episodes):

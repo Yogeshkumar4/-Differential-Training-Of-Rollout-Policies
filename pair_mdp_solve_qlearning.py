@@ -7,7 +7,6 @@ from environment import Environment
 from utils import str2bool, ACTIONS
 from joblib import Parallel, delayed
 
-np.random.seed(42)
 
 class pairEnv:
 
@@ -42,7 +41,6 @@ def improveAction(state, policy_action, env0, gamma, V, averageOver = 1000):
         bestAction = np.argmax(actionMeans)
     return bestAction
 
-
 def updatePi(pi, env0, gamma, V):
     with Parallel(n_jobs = -1) as parallel:
         tempPi = parallel(delayed(improveAction)(s, pi[s], env0, gamma, V) for
@@ -54,7 +52,7 @@ def evaluatePi(pi, env, num=1000):
     rewards = 0
     env = copy.deepcopy(env)
     for i in range(num):
-        s = env.reset()
+        s = env.reset_start()
         done = 'continue'
         reward = 0
         while done == 'continue':
@@ -64,10 +62,10 @@ def evaluatePi(pi, env, num=1000):
         rewards += reward
     return rewards/num
 
-
 class QLEnvAgent:
 
     def __init__(self, env, gamma, lr, epsilon=0.5):
+        self.env0 = copy.deepcopy(env)
         self.env = copy.deepcopy(env)
         self.gamma = gamma
         self.numActions = len(ACTIONS)
@@ -85,15 +83,21 @@ class QLEnvAgent:
     def observe(self, newState, reward, done):
         s, a = self.curr_state, self.action
         alpha, gamma = self.alpha, self.gamma
-        self.Q[s[0]][s[1]][a[0]][a[1]] += alpha * (reward + gamma* np.max(self.Q[newState[0]][[newState[1]]]) -
-            self.Q[s[0]][s[1]][a[0]][a[1]])
+        # diff = np.max(np.mean(self.Q[newState[0]],axis=(0,2))) - np.max(np.mean(self.Q[:,newState[1]],axis=(0,1)))
+        diff = np.max(self.Q[newState[0]][newState[1]])
+        # print diff
+        # print self.Q[newState[0]].shape, np.sum(self.Q[newState[0]],axis=(0,2)).shape
+        self.Q[s[0]][s[1]][a[0]][a[1]] += alpha * (reward + gamma*diff - self.Q[s[0]][s[1]][a[0]][a[1]])
+        
+        # self.Q[s[0]][s[1]][a[0]][a[1]] += alpha * (reward + gamma* np.max(self.Q[newState[0]][newState[1]]) -
+        #     self.Q[s[0]][s[1]][a[0]][a[1]])
         self.curr_state = newState
         if done:
             self.__initparams__()
             self.episode += 1
 
     def __initparams__(self):
-        self.curr_state = env.reset()
+        self.curr_state = self.env0.reset()
 
 
 if __name__ == '__main__':
@@ -101,7 +105,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Implements the Environment.")
     parser.add_argument('-side', '--side', dest='side', type=int, default=8, help='Side length of the square grid')
     parser.add_argument('-i', '--instance', dest='instance', type=int, default=0, help='Instance number of the gridworld.')
-    parser.add_argument('-slip', '--slip', dest='slip', type=float, default=0.8, help='How likely is it for the agent to slip')
+    parser.add_argument('-slip', '--slip', dest='slip', type=float, default=0, help='How likely is it for the agent to slip')
     parser.add_argument('-ml', '--maxlength', dest='maxLength', type=int, default=1000, help='Maximum number of timesteps in an episode')
     parser.add_argument('-rs', '--randomseed', dest='randomseed', type=int, default=0, help='Seed for RNG.')
     parser.add_argument('-nobf', '--noobfuscate', dest='obfuscate', type=str2bool, nargs='?', const=False, default=False, help='Whether to obfuscate the states or not')
@@ -110,11 +114,11 @@ if __name__ == '__main__':
 
     env0 = Environment(args.side, args.instance, args.slip, args.obfuscate, args.randomseed, args.maxLength)
     env = pairEnv(env0)
-    env0.printWorld()
+    # env0.printWorld()
     pi = np.random.randint(4, size=env.states)
 
     gamma = 0.95
-    num_episodes = 20000
+    num_episodes = 200
     agent = QLEnvAgent(env, gamma, lr=0.8)
     episode_rewards = np.zeros(num_episodes)
     for i in range(num_episodes):
@@ -126,14 +130,14 @@ if __name__ == '__main__':
             agent.observe(state, reward, done)
             episode_reward += reward
         episode_rewards[i] = episode_reward
-    print(episode_rewards[-1000:])
-    print("Mean episode reward: {}".format(np.mean(episode_rewards[-100:])))
+    #print(episode_rewards)
+    #print("Mean episode reward: {}".format(np.mean(episode_rewards[-100:])))
 
     Q = agent.Q
     V = np.amax(Q, axis=(2,3)).reshape(env0.numStates, env0.numStates)
-    print("------------")
-    print(V)
-    print("------------")
+    # print("------------")
+    # print(V)
+    # print("------------")
     pi = updatePi(pi, env0, gamma, V)
     env0.printPolicy(pi)
     printPolicy(pi)
