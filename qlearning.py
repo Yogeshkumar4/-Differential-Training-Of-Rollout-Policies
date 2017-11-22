@@ -23,6 +23,7 @@ class QLearningAgent:
 
     def getAction(self):
         # noise = np.random.randn(1, self.numActions)/(self.episode + 1)
+        self.epsilon = max(0.01, self.epsilon-0.001)
         if random.random()<self.epsilon:
             self.action = random.randint(0,self.numActions-1)
         else:

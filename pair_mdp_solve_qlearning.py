@@ -6,7 +6,7 @@ import argparse
 from environment import Environment
 from utils import str2bool, ACTIONS
 from joblib import Parallel, delayed
-
+import random
 
 class pairEnv:
 
@@ -42,7 +42,7 @@ def improveAction(state, policy_action, env0, gamma, V, averageOver = 1000):
     return bestAction
 
 def updatePi(pi, env0, gamma, V):
-    with Parallel(n_jobs = -1) as parallel:
+    with Parallel(n_jobs = 1) as parallel:
         tempPi = parallel(delayed(improveAction)(s, pi[s], env0, gamma, V) for
             s in xrange(env0.getnumStates()))
         pi = np.asarray(tempPi, dtype = 'int')
@@ -73,11 +73,17 @@ class QLEnvAgent:
         self.__initparams__()
         self.alpha = lr
         self.episode = 0
+        self.epsilon = epsilon
 
     def getAction(self):
         s = self.curr_state
-        noise = np.random.randn(self.numActions, self.numActions)/(self.episode + 1)
-        self.action = np.unravel_index(np.argmax(self.Q[s[0]][s[1]] + noise), noise.shape)
+        # noise = np.random.randn(self.numActions, self.numActions)/(self.episode + 1)
+        self.epsilon = max(0.01, self.epsilon-0.001)
+        if random.random()<self.epsilon:
+            action = random.randint(0,self.numActions*self.numActions-1)
+        else:
+            action = np.argmax(self.Q[s[0]][s[1]])
+        self.action = np.unravel_index(action, (self.numActions, self.numActions))
         return self.action
 
     def observe(self, newState, reward, done):
