@@ -18,7 +18,7 @@ class QLearningAgent(object):
         self.batch_size = 32  # maximum size of the batches sampled from memory
 
         # agent state
-        self.model = self.build_model()
+        self.model = self.createRegularizedModel([30,30])
         self.pair_model = self.create_pair_model()
         # print(self.pair_model.summary())
         self.memory = deque(maxlen=2000)
