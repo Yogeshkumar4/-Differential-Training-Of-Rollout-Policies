@@ -10,3 +10,5 @@ forcement learning environments with finite state and action space. If
 possible, we'd also try to implement this method on more complex con-
 tinuous state space environments using neural networks as function ap-
 proximators.
+
+The detailed report for this project can be found [here](https://drive.google.com/file/d/1rqvOS9WtfOz1fTRnpBf0lv0ta6JlJfmT/view?usp=sharing).
